@@ -1,5 +1,15 @@
 module RR
   module WASM
+
+    class Opcode
+      attr_reader :hex , :wat
+
+      def initialize(wat,hex)
+          @wat= wat
+          @hex= hex
+      end
+    end
+
     #https://webassembly.github.io/spec/core/binary/modules.html#sections
     module SECTION
       CUSTOM = 0
@@ -18,10 +28,11 @@ module RR
 
     #https://webassembly.github.io/spec/core/binary/types.html
     module VALTYPE
-      I32 = 0x7f
-      F32 = 0x7d
-      I64 = 0x7E
-      F64 = 0x7C
+      I32 = Opcode.new("i32",0x7F)
+      F32 = Opcode.new("f32",0x7D)
+      I64 = Opcode.new("i64",0x7E)
+      F64 = Opcode.new("f64",0x7C)
+      FUNCREF = Opcode.new("funcref",0x70)
     end
 
     #https://webassembly.github.io/spec/core/binary/types.html#binary-blocktype
@@ -32,20 +43,56 @@ module RR
 
     # https://webassembly.github.io/spec/core/binary/instructions.html
     module OPCODES
-      BLOCK = 0x02
-      LOOP = 0x03
-      BR = 0x0c
-      BR_IF = 0x0d
-      END_ = 0x0b
-      CALL = 0x10
-      GET_LOCAL = 0x20
-      SET_LOCAL = 0x21
-      I32_STORE_8 = 0x3a
-      I32_CONST = 0x41
-      F32_CONST = 0x43
-      I32_EQZ = 0x45
-      I32_EQ = 0x46
-      F32_EQ = 0x5b
+      BLOCK = Opcode.new("block",0x02)
+      LOOP = Opcode.new("loop",0x03)
+      IF = Opcode.new("if",0x04)
+      BR = Opcode.new("br",0x0C)
+      BR_IF = Opcode.new("br_if",0x0D)
+      END_ = Opcode.new("end",0x0b)
+      BR_TABLE = Opcode.new("br_table",0x0E)
+      RETURN = Opcode.new("return",0x0F)
+      CALL = Opcode.new("call",0x10)
+      CALL_INDIRECT = Opcode.new("call_indirect",0x11)
+      DROP =  Opcode.new("drop",0x1A)
+      SELECT = Opcode.new("select",0x1B)
+      GET_LOCAL = Opcode.new("local.get",0x20)
+      SET_LOCAL = Opcode.new("local.set",0x21)
+      TEE_LOCAL = Opcode.new("local.tee",0x22)
+      GET_GLOBAL = Opcode.new("global.get",0x23)
+      SET_GLOBAL = Opcode.new("global.set",0x24)
+      I32_LOAD = Opcode.new("i32.load",0x28)
+      I64_LOAD = Opcode.new("i64.load",0x29)
+      F32_LOAD = Opcode.new("f32.load",0x2A)
+      F64_LOAD = Opcode.new("f64.load",0x2B)
+      I32_LOAD8_S = Opcode.new("i32.load8_s",0x2C)
+      I32_LOAD8_u = Opcode.new("i32.load8_u",0x2D)
+      I32_LOAD16_S = Opcode.new("i32.load16_s",0x2E)
+      I32_LOAD16_U = Opcode.new("i32.load16_u",0x2F)
+      I64_LOAD8_S = Opcode.new("i64.load8_s",0x30)
+      I64_LOAD8_U = Opcode.new("i64.load8_u",0x31)
+      I64_LOAD16_S = Opcode.new("i64.load16_s",0x32)
+      I64_LOAD16_U = Opcode.new("i64.load16_u",0x33)
+      I64_LOAD32_S = Opcode.new("i64.load32_s",0x34)
+      I64_LOAD32_U = Opcode.new("i64.load32_u",0x35)
+      I32_STORE =  Opcode.new("i32.store",0x36)
+      I64_STORE =  Opcode.new("i64.store",0x37)
+      F32_STORE =  Opcode.new("f32.store",0x38)
+      F64_STORE =  Opcode.new("f64.store",0x39)
+      I32_STORE8 =  Opcode.new("i32.store8",0x3A)
+      I32_STORE16 =  Opcode.new("i32.store16",0x3B)
+      I64_STORE8 =  Opcode.new("i64.store8",0x3C)
+      I64_STORE16 =  Opcode.new("i64.store16",0x3D)
+      I64_STORE32 =  Opcode.new("i64.store32",0x3E)
+      MEMORY_SIZE = Opcode.new("memory.size",0x3F)
+      MEMORY_GROW = Opcode.new("memory.grow",0x40)
+      I32_CONST = Opcode.new("i32.const",0x41)
+      I64_CONST = Opcode.new("i64.const",0x42)
+      F32_CONST = Opcode.new("f32.const",0x43)
+      F64_CONST = Opcode.new("f64.const",0x44)
+      I32_EQZ = Opcode.new("i32.eqz",0x45)
+      I32_EQ = Opcode.new("i32.eq",0x5b)
+
+
       F32_LT = 0x5d
       F32_GT = 0x5e
       I32_AND = 0x71
