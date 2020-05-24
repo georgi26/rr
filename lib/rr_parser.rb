@@ -2,7 +2,7 @@ module RR::Parser
   BEGINS=[:def,:class,:module,:if,:else,:elsif,:while]
   END_ = :end
 
-  class Statement
+  class StatementParser
     attr_reader :type,:children, :parent
     def initialize(type, parent=nil)
       @type = type
@@ -17,13 +17,37 @@ module RR::Parser
         end
         r << ")"
     end
+
+    def end
+    end
   end
 
-  class DefStatement < Statement
+  class DefParser < StatementParser
     def initialize(parent=nil)
       super(:def,parent)
     end
+
+    def end
+      nameType = children[0]
+      args = [];
+      argsStart = false
+
+      for i in 1..children.size
+        c = children[i]
+        if(children.include? "(")
+          argsStart = true
+        end
+        if(argsStart)
+          args << c
+        end
+        if(children.include? ")")
+          argsStart  = false
+          break
+        end
+      end
+    end
   end
+
 
   class Expression
     attr_reader :text
@@ -47,30 +71,31 @@ module RR::Parser
       end
     end
 
-    def createStatement(st,parent)
+    def createStatementParser(st,parent)
       new = nil
         case st
         when :def
-          new = DefStatement.new(parent)
+          new = DefParser.new(parent)
         else
-          new = Statement.new(st,parent)
+          new = StatementParser.new(st,parent)
         end
         new
     end
     def parse
       @ws_tokens = @text.split(/\s/)
-      current = Statement.new(:begin)
+      current = StatementParser.new(:begin)
       not_ended = [current]
       @ws_tokens.each do |t|
         st = t.to_sym
         if(BEGINS.include? st)
 
-            new = createStatement(st,current)
+            new = createStatementParser(st,current)
             current.children << new
             not_ended << new
             current = new
         elsif t.to_sym == END_
             ended = not_ended.pop
+            ended.end
             current = not_ended.last
         else
             current.children << Expression.new(t)
